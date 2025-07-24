@@ -10,6 +10,10 @@ A modern Spring Boot microservice showcasing enterprise-grade OpenAI GPT-4 integ
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue?style=flat-square&logo=docker)
 ![License](https://img.shields.io/badge/License-Portfolio-purple?style=flat-square)
 
+<div align="center">
+  <img src="assets/images/banner.svg" alt="AI-MessageCraft Banner" width="600"/>
+</div>
+
 ## 🚀 Features
 
 - **AI-Powered Message Generation**: Generate professional customer service messages using GPT-4
@@ -218,6 +222,10 @@ data: Generated content chunk 3
 - Extract key points from lengthy communications
 
 ## 🏗 Architecture
+
+<div align="center">
+  <img src="assets/images/architecture-preview.svg" alt="Architecture Overview" width="500"/>
+</div>
 
 The application follows a clean architecture pattern:
 
