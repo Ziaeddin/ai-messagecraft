@@ -4,7 +4,7 @@
 
 AI-MessageCraft is a Spring Boot microservice designed to showcase enterprise-grade AI integration capabilities. The service provides RESTful APIs for message generation and text summarization using OpenAI's GPT-4 model.
 
-## Architecture Diagram
+## System Architecture Overview
 
 ```mermaid
 graph TB
@@ -12,58 +12,116 @@ graph TB
         WEB[Web Applications]
         MOBILE[Mobile Apps]
         CLI[CLI Tools]
+        API[API Clients]
     end
     
-    subgraph "API Gateway"
-        GATEWAY[Load Balancer/API Gateway]
+    subgraph "Load Balancer"
+        LB[Nginx/ALB]
     end
     
-    subgraph "AI-MessageCraft Service"
+    subgraph "AI-MessageCraft Microservice"
         subgraph "Presentation Layer"
-            MSG_CTRL[MessageController]
-            SUM_CTRL[SummarizeController]
+            MSG_CTRL[MessageController<br/>📝 Generate Messages]
+            SUM_CTRL[SummarizeController<br/>📄 Summarize Text]
+            HEALTH_CTRL[Health Controller<br/>🏥 Monitoring]
         end
         
         subgraph "Business Layer"
-            AI_SVC[OpenAiService]
-            STREAM[Streaming Handler]
+            AI_SVC[OpenAiService<br/>🤖 AI Integration]
+            STREAM_SVC[Streaming Service<br/>📡 Real-time Data]
+            CONFIG_SVC[Configuration Service<br/>⚙️ Settings]
         end
         
-        subgraph "Configuration"
-            CONFIG[OpenAI Configuration]
-            PROPS[Application Properties]
+        subgraph "Infrastructure Layer"
+            WEBCLIENT[WebClient<br/>🌐 HTTP Client]
+            VALIDATION[Validation<br/>✅ Input Checks]
+            ERROR_HANDLER[Error Handler<br/>❌ Exception Management]
         end
     end
     
-    subgraph "External APIs"
-        OPENAI[OpenAI GPT-4 API]
+    subgraph "External Services"
+        OPENAI[OpenAI GPT-4 API<br/>🧠 AI Processing]
     end
     
-    subgraph "Infrastructure"
-        DOCKER[Docker Container]
-        HEALTH[Health Checks]
-        METRICS[Metrics & Monitoring]
+    subgraph "Deployment Infrastructure"
+        DOCKER[Docker Container<br/>🐳 Containerization]
+        METRICS[Actuator Metrics<br/>📊 Health Monitoring]
+        SWAGGER[Swagger UI<br/>📚 API Documentation]
     end
     
-    WEB --> GATEWAY
-    MOBILE --> GATEWAY
-    CLI --> GATEWAY
+    WEB --> LB
+    MOBILE --> LB
+    CLI --> LB
+    API --> LB
     
-    GATEWAY --> MSG_CTRL
-    GATEWAY --> SUM_CTRL
+    LB --> MSG_CTRL
+    LB --> SUM_CTRL
+    LB --> HEALTH_CTRL
     
     MSG_CTRL --> AI_SVC
     SUM_CTRL --> AI_SVC
+    HEALTH_CTRL --> METRICS
     
-    AI_SVC --> STREAM
-    AI_SVC --> CONFIG
-    CONFIG --> PROPS
+    AI_SVC --> STREAM_SVC
+    AI_SVC --> CONFIG_SVC
+    AI_SVC --> WEBCLIENT
     
-    AI_SVC --> OPENAI
+    MSG_CTRL --> VALIDATION
+    SUM_CTRL --> VALIDATION
+    VALIDATION --> ERROR_HANDLER
     
-    AI_SVC --> HEALTH
-    HEALTH --> METRICS
+    WEBCLIENT --> OPENAI
+    
+    MSG_CTRL --> SWAGGER
+    SUM_CTRL --> SWAGGER
+    HEALTH_CTRL --> SWAGGER
+    
+    AI_SVC --> DOCKER
     METRICS --> DOCKER
+    
+    style OPENAI fill:#ff9999,stroke:#ff6666,stroke-width:3px
+    style AI_SVC fill:#99ccff,stroke:#6699ff,stroke-width:3px
+    style DOCKER fill:#99ff99,stroke:#66cc66,stroke-width:3px
+    style SWAGGER fill:#ffcc99,stroke:#ff9966,stroke-width:3px
+    style STREAM_SVC fill:#ff99ff,stroke:#ff66ff,stroke-width:3px
+```
+
+## Component Interaction Flow
+
+```mermaid
+sequenceDiagram
+    participant Client as 👤 Client
+    participant Controller as 🎮 Controller
+    participant Service as ⚙️ AI Service
+    participant Config as 🔧 Config
+    participant WebClient as 🌐 WebClient
+    participant OpenAI as 🤖 OpenAI API
+    
+    Note over Client,OpenAI: Message Generation Request
+    
+    Client->>Controller: POST /messages/generate
+    Controller->>Controller: Validate Request
+    Controller->>Service: generateMessage()
+    
+    Service->>Config: Get API Configuration
+    Config-->>Service: API Key, Model, Settings
+    
+    Service->>WebClient: Create HTTP Request
+    WebClient->>OpenAI: POST /chat/completions
+    
+    OpenAI-->>WebClient: AI Generated Response
+    WebClient-->>Service: Parsed Response
+    Service-->>Controller: Generated Message
+    Controller-->>Client: JSON Response with Message
+    
+    Note over Client,OpenAI: Error Handling Flow
+    
+    alt OpenAI API Error
+        OpenAI-->>WebClient: Error Response
+        WebClient-->>Service: Exception
+        Service-->>Controller: Handled Error
+        Controller-->>Client: Error Response
+    end
 ```
 
 ## Component Details

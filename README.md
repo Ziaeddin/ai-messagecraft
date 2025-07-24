@@ -10,9 +10,123 @@ A modern Spring Boot microservice showcasing enterprise-grade OpenAI GPT-4 integ
 ![Docker](https://img.shields.io/badge/Docker-Ready-blue?style=flat-square&logo=docker)
 ![License](https://img.shields.io/badge/License-Portfolio-purple?style=flat-square)
 
-<div align="center">
-  <img src="assets/images/banner.svg" alt="AI-MessageCraft Banner" width="600"/>
-</div>
+---
+
+## 🏗️ System Architecture
+
+```mermaid
+graph TB
+    subgraph "Client Applications"
+        WEB[Web App]
+        MOBILE[Mobile App]
+        API_CLIENT[API Client]
+    end
+    
+    subgraph "AI-MessageCraft Service"
+        subgraph "Controllers"
+            MSG_CTRL[Message Controller]
+            SUM_CTRL[Summarize Controller]
+        end
+        
+        subgraph "Service Layer"
+            AI_SERVICE[OpenAI Service]
+            STREAM_SERVICE[Streaming Service]
+        end
+        
+        subgraph "Configuration"
+            CONFIG[OpenAI Config]
+            PROPS[Properties]
+        end
+    end
+    
+    subgraph "External Services"
+        OPENAI[OpenAI GPT-4 API]
+    end
+    
+    subgraph "Infrastructure"
+        DOCKER[Docker Container]
+        HEALTH[Health Monitoring]
+        SWAGGER[API Documentation]
+    end
+    
+    WEB --> MSG_CTRL
+    MOBILE --> SUM_CTRL
+    API_CLIENT --> MSG_CTRL
+    
+    MSG_CTRL --> AI_SERVICE
+    SUM_CTRL --> AI_SERVICE
+    
+    AI_SERVICE --> STREAM_SERVICE
+    AI_SERVICE --> CONFIG
+    CONFIG --> PROPS
+    
+    AI_SERVICE --> OPENAI
+    
+    MSG_CTRL --> SWAGGER
+    SUM_CTRL --> SWAGGER
+    
+    AI_SERVICE --> HEALTH
+    HEALTH --> DOCKER
+    
+    style OPENAI fill:#ff9999
+    style AI_SERVICE fill:#99ccff
+    style DOCKER fill:#99ff99
+    style SWAGGER fill:#ffcc99
+```
+
+## 🛠 Technology Stack & Features
+
+```mermaid
+mindmap
+  root((AI-MessageCraft))
+    Backend Framework
+      Spring Boot 3.2.0
+        WebFlux Reactive
+        Spring Actuator
+        Configuration Properties
+      Java 17
+        Modern Language Features
+        Record Classes
+        Switch Expressions
+    AI Integration
+      OpenAI GPT-4
+        Chat Completions API
+        Streaming Responses
+        Custom Parameters
+      Reactive WebClient
+        Non-blocking I/O
+        Error Handling
+        Circuit Breaker Ready
+    API Design
+      RESTful Architecture
+        JSON Request/Response
+        Server-Sent Events
+        HTTP Status Codes
+      Swagger/OpenAPI 3
+        Interactive Documentation
+        Try-it-out Features
+        Schema Validation
+    DevOps & Deployment
+      Docker
+        Multi-stage Build
+        Optimized Images
+        Health Checks
+      Maven
+        Dependency Management
+        Build Automation
+        Testing Integration
+    Quality & Testing
+      JUnit 5
+        Unit Tests
+        Integration Tests
+        Mockito
+      Validation
+        Input Validation
+        Error Handling
+        Global Exception Handler
+```
+
+---
 
 ## 🚀 Features
 
@@ -25,16 +139,6 @@ A modern Spring Boot microservice showcasing enterprise-grade OpenAI GPT-4 integ
 - **Swagger Documentation**: Interactive API documentation with Swagger UI
 - **Health Monitoring**: Built-in health checks and monitoring endpoints
 - **Configurable**: Environment-based configuration for different deployment scenarios
-
-## 🛠 Technology Stack
-
-- **Java 17**
-- **Spring Boot 3.2.0**
-- **Spring WebFlux** (for reactive streaming)
-- **OpenAI GPT-4 API**
-- **Maven**
-- **Swagger/OpenAPI 3**
-- **SLF4J Logging**
 
 ## 📋 Prerequisites
 
@@ -92,6 +196,101 @@ curl -N -X POST http://localhost:8080/api/v1/messages/generate/stream \
   -d '{"prompt": "Write a welcome message for new customers"}'
 ```
 
+## 🔄 Message Flow & Streaming
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Controller
+    participant Service
+    participant OpenAI
+    
+    Note over Client,OpenAI: Message Generation Flow
+    
+    Client->>Controller: POST /api/v1/messages/generate
+    Note right of Client: {<br/>"prompt": "Generate apology message",<br/>"maxTokens": 500,<br/>"temperature": 0.7<br/>}
+    
+    Controller->>Controller: Validate Request
+    Controller->>Service: generateMessage()
+    
+    Service->>Service: Create OpenAI Request
+    Service->>OpenAI: POST /chat/completions
+    Note right of Service: {<br/>"model": "gpt-4",<br/>"messages": [...],<br/>"max_tokens": 500<br/>}
+    
+    OpenAI-->>Service: AI Generated Response
+    Service-->>Controller: Generated Message
+    Controller-->>Client: JSON Response
+    Note left of Controller: {<br/>"status": "success",<br/>"data": "Generated message...",<br/>"timestamp": "2024-01-01T12:00:00"<br/>}
+    
+    Note over Client,OpenAI: Streaming Flow
+    
+    Client->>Controller: POST /api/v1/messages/generate/stream
+    Controller->>Service: generateMessageStream()
+    Service->>OpenAI: POST /chat/completions (stream=true)
+    
+    loop Real-time Streaming
+        OpenAI-->>Service: Stream Chunk
+        Service-->>Controller: Processed Chunk
+        Controller-->>Client: Server-Sent Event
+        Note left of Controller: data: Generated content chunk...
+    end
+```
+
+## 🎯 Core Features Overview
+
+```mermaid
+graph LR
+    subgraph "Core Features"
+        A[AI Message Generation]
+        B[Text Summarization]
+        C[Real-time Streaming]
+        D[Template Management]
+    end
+    
+    subgraph "API Capabilities"
+        E[RESTful Endpoints]
+        F[Input Validation]
+        G[Error Handling]
+        H[Swagger Documentation]
+    end
+    
+    subgraph "AI Integration"
+        I[OpenAI GPT-4]
+        J[Configurable Parameters]
+        K[Multiple Summary Types]
+        L[Custom Prompts]
+    end
+    
+    subgraph "Production Features"
+        M[Health Monitoring]
+        N[Docker Support]
+        O[Environment Config]
+        P[Logging & Metrics]
+    end
+    
+    A --> E
+    B --> F
+    C --> G
+    D --> H
+    
+    E --> I
+    F --> J
+    G --> K
+    H --> L
+    
+    I --> M
+    J --> N
+    K --> O
+    L --> P
+    
+    style A fill:#ff6b6b
+    style B fill:#4ecdc4
+    style C fill:#45b7d1
+    style D fill:#96ceb4
+    style I fill:#feca57
+    style M fill:#ff9ff3
+```
+
 ## 📖 API Documentation
 
 Once the application is running, you can access:
@@ -105,7 +304,50 @@ Once the application is running, you can access:
 - [📋 Complete API Examples](docs/API_EXAMPLES.md)
 - [🎯 Live Demo Guide](assets/demo-banner.md)
 
-## 🔌 API Endpoints
+## 🔌 API Endpoints Overview
+
+```mermaid
+graph TD
+    subgraph "Message Generation APIs"
+        A[POST /api/v1/messages/generate]
+        B[POST /api/v1/messages/generate/stream]
+        C[GET /api/v1/messages/templates]
+    end
+    
+    subgraph "Text Summarization APIs"
+        D[POST /api/v1/summarize]
+        E[POST /api/v1/summarize/stream]
+        F[GET /api/v1/summarize/types]
+    end
+    
+    subgraph "System APIs"
+        G[GET /actuator/health]
+        H[GET /actuator/info]
+        I[GET /swagger-ui.html]
+        J[GET /api-docs]
+    end
+    
+    subgraph "Request Types"
+        K[JSON Request Body]
+        L[Server-Sent Events]
+        M[JSON Response]
+    end
+    
+    A --> K
+    A --> M
+    B --> K
+    B --> L
+    D --> K
+    D --> M
+    E --> K
+    E --> L
+    
+    style A fill:#e3f2fd
+    style B fill:#e8f5e9
+    style D fill:#fff3e0
+    style E fill:#fce4ec
+    style G fill:#f3e5f5
+```
 
 ### Message Generation
 
@@ -221,11 +463,58 @@ data: Generated content chunk 3
 - Generate bullet-point summaries for reporting
 - Extract key points from lengthy communications
 
-## 🏗 Architecture
+## 🚀 Deployment & DevOps Pipeline
 
-<div align="center">
-  <img src="assets/images/architecture-preview.svg" alt="Architecture Overview" width="500"/>
-</div>
+```mermaid
+graph TB
+    subgraph "Development"
+        CODE[Source Code]
+        TEST[Unit Tests]
+        BUILD[Maven Build]
+    end
+    
+    subgraph "Containerization"
+        DOCKER_BUILD[Docker Build]
+        IMAGE[Docker Image]
+        COMPOSE[Docker Compose]
+    end
+    
+    subgraph "Deployment"
+        LOCAL[Local Development]
+        STAGING[Staging Environment]
+        PROD[Production]
+    end
+    
+    subgraph "Monitoring"
+        HEALTH[Health Checks]
+        METRICS[Metrics Collection]
+        LOGS[Centralized Logging]
+    end
+    
+    CODE --> TEST
+    TEST --> BUILD
+    BUILD --> DOCKER_BUILD
+    DOCKER_BUILD --> IMAGE
+    IMAGE --> COMPOSE
+    
+    COMPOSE --> LOCAL
+    COMPOSE --> STAGING
+    COMPOSE --> PROD
+    
+    LOCAL --> HEALTH
+    STAGING --> METRICS
+    PROD --> LOGS
+    
+    HEALTH --> METRICS
+    METRICS --> LOGS
+    
+    style CODE fill:#e1f5fe
+    style DOCKER_BUILD fill:#f3e5f5
+    style PROD fill:#e8f5e8
+    style HEALTH fill:#fff3e0
+```
+
+## 🏗 Clean Architecture Pattern
 
 The application follows a clean architecture pattern:
 
